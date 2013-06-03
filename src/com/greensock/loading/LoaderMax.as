@@ -141,7 +141,7 @@ function errorHandler(event:LoaderEvent):void {
  * 
  * @author Jack Doyle, jack@greensock.com
  */	
-	public class LoaderMax extends LoaderCore {		
+	public class LoaderMax extends LoaderCore implements ILoaderMax {		
 		/** @private **/
 		public static const version:Number = 1.936;
 		/** The default value that will be used for the <code>estimatedBytes</code> on loaders that don't declare one in the <code>vars</code> parameter of the constructor. **/
