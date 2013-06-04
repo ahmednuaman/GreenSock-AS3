@@ -8,7 +8,7 @@ package com.greensock.loading.core {
 	import com.greensock.events.LoaderEvent;
 	import com.greensock.loading.LoaderMax;
 	import com.greensock.loading.LoaderStatus;
-	
+
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -17,7 +17,7 @@ package com.greensock.loading.core {
 	import flash.system.Capabilities;
 	import flash.utils.Dictionary;
 	import flash.utils.getTimer;
-	
+
 	/** Dispatched when the loader starts loading. **/
 	[Event(name="open", 	type="com.greensock.events.LoaderEvent")]
 	/** Dispatched each time the <code>bytesLoaded</code> value changes while loading (indicating progress). **/
@@ -33,17 +33,17 @@ package com.greensock.loading.core {
 	/** Dispatched when the loader unloads (which happens when either <code>unload()</code> or <code>dispose(true)</code> is called or if a loader is canceled while in the process of loading). **/
 	[Event(name="unload", 	type="com.greensock.events.LoaderEvent")]
 /**
- * Serves as the base class for GreenSock loading tools like <code>LoaderMax, ImageLoader, XMLLoader, SWFLoader</code>, etc. 
+ * Serves as the base class for GreenSock loading tools like <code>LoaderMax, ImageLoader, XMLLoader, SWFLoader</code>, etc.
  * There is no reason to use this class on its own. Please see the documentation for the other classes.
- * 
+ *
  * <p><strong>Copyright 2013, GreenSock. All rights reserved.</strong> This work is subject to the terms in <a href="http://www.greensock.com/terms_of_use.html">http://www.greensock.com/terms_of_use.html</a> or for <a href="http://www.greensock.com/club/">Club GreenSock</a> members, the software agreement that was issued with the membership.</p>
- * 
+ *
  * @author Jack Doyle, jack@greensock.com
- */	
+ */
 	public class LoaderCore extends EventDispatcher {
 		/** @private **/
 		public static const version:Number = 1.935;
-		
+
 		/** @private **/
 		protected static var _loaderCount:uint = 0;
 		/** @private **/
@@ -53,21 +53,21 @@ package com.greensock.loading.core {
 		/** @private **/
 		protected static var _globalRootLoader:LoaderMax;
 		/** @private **/
-		protected static var _listenerTypes:Object = {onOpen:"open", 
-													  onInit:"init", 
-													  onComplete:"complete", 
-													  onProgress:"progress", 
+		protected static var _listenerTypes:Object = {onOpen:"open",
+													  onInit:"init",
+													  onComplete:"complete",
+													  onProgress:"progress",
 													  onCancel:"cancel",
 													  onFail:"fail",
-													  onError:"error", 
-													  onSecurityError:"securityError", 
-													  onHTTPStatus:"httpStatus", 
+													  onError:"error",
+													  onSecurityError:"securityError",
+													  onHTTPStatus:"httpStatus",
 													  onHTTPResponseStatus:"httpResponseStatus",
-													  onIOError:"ioError", 
-													  onScriptAccessDenied:"scriptAccessDenied", 
-													  onChildOpen:"childOpen", 
+													  onIOError:"ioError",
+													  onScriptAccessDenied:"scriptAccessDenied",
+													  onChildOpen:"childOpen",
 													  onChildCancel:"childCancel",
-													  onChildComplete:"childComplete", 
+													  onChildComplete:"childComplete",
 													  onChildProgress:"childProgress",
 													  onChildFail:"childFail",
 													  onRawLoad:"rawLoad",
@@ -76,7 +76,7 @@ package com.greensock.loading.core {
 		protected static var _types:Object = {};
 		/** @private **/
 		protected static var _extensions:Object = {};
-		
+
 		/** @private **/
 		protected var _cachedBytesLoaded:uint;
 		/** @private **/
@@ -101,17 +101,17 @@ package com.greensock.loading.core {
 		protected var _time:uint;
 		/** @private **/
 		protected var _content:*;
-		
+
 		/** An object containing optional configuration details, typically passed through a constructor parameter. For example: <code>new SWFLoader("assets/file.swf", {name:"swf1", container:this, autoPlay:true, noCache:true})</code>. See the constructor's documentation for details about what special properties are recognized. **/
 		public var vars:Object;
 		/** A name that you use to identify the loader instance. This name can be fed to the <code>getLoader()</code> or <code>getContent()</code> methods or traced at any time. Each loader's name should be unique. If you don't define one, a unique name will be created automatically, like "loader21". **/
 		public var name:String;
 		/** When <code>autoDispose</code> is <code>true</code>, the loader will be disposed immediately after it completes (it calls the <code>dispose()</code> method internally after dispatching its <code>COMPLETE</code> event). This will remove any listeners that were defined in the vars object (like onComplete, onProgress, onError, onInit). Once a loader is disposed, it can no longer be found with <code>LoaderMax.getLoader()</code> or <code>LoaderMax.getContent()</code> - it is essentially destroyed but its content is <strong>not</strong> unloaded (you must call <code>unload()</code> or <code>dispose(true)</code> to unload its content). The default <code>autoDispose</code> value is <code>false</code>. **/
 		public var autoDispose:Boolean;
-		
+
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param vars An object containing optional parameters like <code>estimatedBytes, name, autoDispose, onComplete, onProgress, onError</code>, etc. For example, <code>{estimatedBytes:2400, name:"myImage1", onComplete:completeHandler}</code>.
 		 */
 		public function LoaderCore(vars:Object=null) {
@@ -125,7 +125,7 @@ package com.greensock.loading.core {
 			this.autoDispose = Boolean(this.vars.autoDispose == true);
 			_status = (this.vars.paused == true) ? LoaderStatus.PAUSED : LoaderStatus.READY;
 			_auditedSize = Boolean(uint(this.vars.estimatedBytes) != 0 && this.vars.auditSize != true);
-			
+
 			if (_globalRootLoader == null) {
 				if (this.vars.__isRoot == true) {
 					return;
@@ -133,31 +133,31 @@ package com.greensock.loading.core {
 				_globalRootLoader = new LoaderMax({name:"root", __isRoot:true});
 				_isLocal = Boolean(Capabilities.playerType == "Desktop" || (new LocalConnection( ).domain == "localhost")); //alt method (Capabilities.playerType != "ActiveX" && Capabilities.playerType != "PlugIn") doesn't work when testing locally in an html wrapper
 			}
-			
+
 			_rootLoader = (this.vars.requireWithRoot is DisplayObject) ? _rootLookup[this.vars.requireWithRoot] : _globalRootLoader;
-			
+
 			if (_rootLoader == null) {
 				_rootLookup[this.vars.requireWithRoot] = _rootLoader = new LoaderMax();
 				_rootLoader.name = "subloaded_swf_" + ((this.vars.requireWithRoot.loaderInfo != null) ? this.vars.requireWithRoot.loaderInfo.url : String(_loaderCount));
 				_rootLoader.skipFailed = false;
 			}
-			
+
 			for (var p:String in _listenerTypes) {
 				if (p in this.vars && this.vars[p] is Function) {
 					this.addEventListener(_listenerTypes[p], this.vars[p], false, 0, true);
 				}
 			}
-			
+
 			_rootLoader.append(this);
 		}
-		
+
 		/**
-		 * Loads the loader's content, optionally flushing any previously loaded content first. For example, 
+		 * Loads the loader's content, optionally flushing any previously loaded content first. For example,
 		 * a LoaderMax may have already loaded 4 out of the 10 loaders in its queue but if you want it to
-		 * flush the data and start again, set the <code>flushContent</code> parameter to <code>true</code> (it is 
-		 * <code>false</code> by default). 
-		 * 
-		 * @param flushContent If <code>true</code>, any previously loaded content in the loader will be flushed so that it loads again from the beginning. For example, a LoaderMax may have already loaded 4 out of the 10 loaders in its queue but if you want it to flush the data and start again, set the <code>flushContent</code> parameter to <code>true</code> (it is <code>false</code> by default). 
+		 * flush the data and start again, set the <code>flushContent</code> parameter to <code>true</code> (it is
+		 * <code>false</code> by default).
+		 *
+		 * @param flushContent If <code>true</code>, any previously loaded content in the loader will be flushed so that it loads again from the beginning. For example, a LoaderMax may have already loaded 4 out of the 10 loaders in its queue but if you want it to flush the data and start again, set the <code>flushContent</code> parameter to <code>true</code> (it is <code>false</code> by default).
 		 */
 		public function load(flushContent:Boolean=false):void {
 			var time:uint = getTimer();
@@ -170,7 +170,7 @@ package com.greensock.loading.core {
 			if (flushContent || _status == LoaderStatus.FAILED) {
 				_dump(1, LoaderStatus.READY);
 			}
-			
+
 			if (_status == LoaderStatus.READY) {
 				_status = LoaderStatus.LOADING;
 				_time = time;
@@ -182,29 +182,29 @@ package com.greensock.loading.core {
 				_completeHandler(null);
 			}
 		}
-		
+
 		/** @private Only called when load() was called and the _status was LoaderStatus.READY - we use this internally to make it simpler to extend (the conditional logic stays in the main <code>load()</code> method). **/
 		protected function _load():void {
 			//override in subclasses
 		}
-		
+
 		/** Pauses the loader immediately. This is the same as setting the <code>paused</code> property to <code>true</code>. Some loaders may not stop loading immediately in order to work around some garbage collection issues in the Flash Player, but they will stop as soon as possible after calling <code>pause()</code>. **/
 		public function pause():void {
 			this.paused = true;
 		}
-		
-		/** Unpauses the loader and resumes loading immediately. **/ 
+
+		/** Unpauses the loader and resumes loading immediately. **/
 		public function resume():void {
 			this.paused = false;
 			load(false);
 		}
-		
-		/** 
-		 * If the loader is currently loading (<code>status</code> is <code>LoaderStatus.LOADING</code>), it will be canceled 
-		 * immediately and its status will change to <code>LoaderStatus.READY</code>. This does <strong>NOT</strong> pause the 
-		 * loader - it simply halts the progress and it remains eligible for loading by any of its parent LoaderMax instances. 
-		 * A paused loader, however, cannot be loaded by any of its parent LoaderMax instances until you unpause it (by either 
-		 * calling <code>resume()</code> or setting its <code>paused</code> property to false). 
+
+		/**
+		 * If the loader is currently loading (<code>status</code> is <code>LoaderStatus.LOADING</code>), it will be canceled
+		 * immediately and its status will change to <code>LoaderStatus.READY</code>. This does <strong>NOT</strong> pause the
+		 * loader - it simply halts the progress and it remains eligible for loading by any of its parent LoaderMax instances.
+		 * A paused loader, however, cannot be loaded by any of its parent LoaderMax instances until you unpause it (by either
+		 * calling <code>resume()</code> or setting its <code>paused</code> property to false).
 		 * @see #unload()
 		 * @see #dispose()
 		 **/
@@ -213,16 +213,16 @@ package com.greensock.loading.core {
 				_dump(0, LoaderStatus.READY);
 			}
 		}
-		
-		/** 
-		 * @private 
+
+		/**
+		 * @private
 		 * Cancels, unloads, and/or disposes of the loader depending on the <code>scrubLevel</code>. This consolidates
-		 * the actions into a single function to conserve file size and because many of the same tasks must 
+		 * the actions into a single function to conserve file size and because many of the same tasks must
 		 * be performed regardless of the scrubLevel, so this eliminates redundant code.
-		 * 
+		 *
 		 * @param scrubLevel 0 = cancel, 1 = unload, 2 = dispose, 3 = flush (like unload and dispose, but in the case of ImageLoaders, SWFLoaders, and VideoLoaders, it also removes the ContentDisplay from the display list)
-		 * @param newStatus The new LoaderStatus to which the loader should be set. 
-		 * @param suppressEvents To prevent events from being dispatched (like CANCEL or DISPOSE or PROGRESS), set <code>suppressEvents</code> to <code>true</code>. 
+		 * @param newStatus The new LoaderStatus to which the loader should be set.
+		 * @param suppressEvents To prevent events from being dispatched (like CANCEL or DISPOSE or PROGRESS), set <code>suppressEvents</code> to <code>true</code>.
 		 **/
 		protected function _dump(scrubLevel:int=0, newStatus:int=0, suppressEvents:Boolean=false):void {
 			_content = null;
@@ -263,56 +263,56 @@ package com.greensock.loading.core {
 				}
 			}
 		}
-		
-		/** 
+
+		/**
 		 * Removes any content that was loaded and sets <code>bytesLoaded</code> back to zero. When you
-		 * <code>unload()</code> a LoaderMax instance, it will also call <code>unload()</code> on all of its 
+		 * <code>unload()</code> a LoaderMax instance, it will also call <code>unload()</code> on all of its
 		 * children as well. If the loader is in the process of loading, it will automatically be canceled.
-		 * 
+		 *
 		 * @see #dispose()
 		 **/
 		public function unload():void {
 			_dump(1, LoaderStatus.READY);
 		}
-		
-		/** 
-		 * Disposes of the loader and releases it internally for garbage collection. If it is in the process of loading, it will also 
+
+		/**
+		 * Disposes of the loader and releases it internally for garbage collection. If it is in the process of loading, it will also
 		 * be cancelled immediately. By default, <code>dispose()</code> <strong>does NOT unload its content</strong>, but
 		 * you may set the <code>flushContent</code> parameter to <code>true</code> in order to flush/unload the <code>content</code> as well
 		 * (in the case of ImageLoaders, SWFLoaders, and VideoLoaders, this will also destroy its ContentDisplay Sprite, removing it
-		 * from the display list if necessary). When a loader is disposed, all of the listeners that were added through the 
-		 * <code>vars</code> object (like <code>{onComplete:completeHandler, onProgress:progressHandler}</code>) are removed. 
+		 * from the display list if necessary). When a loader is disposed, all of the listeners that were added through the
+		 * <code>vars</code> object (like <code>{onComplete:completeHandler, onProgress:progressHandler}</code>) are removed.
 		 * If you manually added listeners, though, you should remove those yourself.
-		 * 
+		 *
 		 * @param flushContent If <code>true</code>, the loader's <code>content</code> will be unloaded as well (<code>flushContent</code> is <code>false</code> by default). In the case of ImageLoaders, SWFLoaders, and VideoLoaders, their ContentDisplay will also be removed from the display list if necessary when <code>flushContent</code> is <code>true</code>.
 		 * @see #unload()
 		 **/
 		public function dispose(flushContent:Boolean=false):void {
 			_dump((flushContent ? 3 : 2), LoaderStatus.DISPOSED);
 		}
-		
-		/** 
+
+		/**
 		 * Immediately prioritizes the loader inside any LoaderMax instances that contain it,
 		 * forcing it to the top position in their queue and optionally calls <code>load()</code>
-		 * immediately as well. If one of its parent LoaderMax instances is currently loading a 
-		 * different loader, that one will be temporarily cancelled. 
-		 * 
-		 * <p>By contrast, when <code>load()</code> is called, it doesn't change the loader's position/index 
-		 * in any LoaderMax queues. For example, if a LoaderMax is working on loading the first object in 
-		 * its queue, you can call load() on the 20th item and it will honor your request without 
-		 * changing its index in the queue. <code>prioritize()</code>, however, affects the position 
+		 * immediately as well. If one of its parent LoaderMax instances is currently loading a
+		 * different loader, that one will be temporarily cancelled.
+		 *
+		 * <p>By contrast, when <code>load()</code> is called, it doesn't change the loader's position/index
+		 * in any LoaderMax queues. For example, if a LoaderMax is working on loading the first object in
+		 * its queue, you can call load() on the 20th item and it will honor your request without
+		 * changing its index in the queue. <code>prioritize()</code>, however, affects the position
 		 * in the queue and optionally loads it immediately as well.</p>
-		 * 
-		 * <p>So even if your LoaderMax hasn't begun loading yet, you could <code>prioritize(false)</code> 
-		 * a loader and it will rise to the top of all LoaderMax instances to which it belongs, but not 
-		 * start loading yet. If the goal is to load something immediately, you can just use the 
+		 *
+		 * <p>So even if your LoaderMax hasn't begun loading yet, you could <code>prioritize(false)</code>
+		 * a loader and it will rise to the top of all LoaderMax instances to which it belongs, but not
+		 * start loading yet. If the goal is to load something immediately, you can just use the
 		 * <code>load()</code> method.</p>
-		 * 
-		 * <p>You may use the static <code>LoaderMax.prioritize()</code> method instead and simply pass 
+		 *
+		 * <p>You may use the static <code>LoaderMax.prioritize()</code> method instead and simply pass
 		 * the name or url of the loader as the first parameter like:</p><p><code>
-		 * 
+		 *
 		 * LoaderMax.prioritize("myLoaderName", true);</code></p>
-		 * 
+		 *
 		 * @param loadNow If <code>true</code> (the default), the loader will start loading immediately (otherwise it is simply placed at the top the queue in any LoaderMax instances to which it belongs).
 		 * @see #load()
 		 **/
@@ -320,9 +320,9 @@ package com.greensock.loading.core {
 			dispatchEvent(new Event("prioritize"));
 			if (loadNow && _status != LoaderStatus.COMPLETED && _status != LoaderStatus.LOADING) {
 				load(false);
-			} 
+			}
 		}
-		
+
 		/** @inheritDoc **/
 		override public function addEventListener(type:String, listener:Function, useCapture:Boolean=false, priority:int=0, useWeakReference:Boolean=false):void {
 			if (type == LoaderEvent.PROGRESS) {
@@ -332,31 +332,31 @@ package com.greensock.loading.core {
 			}
 			super.addEventListener(type, listener, useCapture, priority, useWeakReference);
 		}
-		
+
 		/** @private **/
 		protected function _calculateProgress():void {
 			//override in subclasses if necessary
 		}
-		
+
 		/**
-		 * Attempts loading just enough of the content to accurately determine the <code>bytesTotal</code> 
-		 * in order to improve the accuracy of the <code>progress</code> property. Once the 
+		 * Attempts loading just enough of the content to accurately determine the <code>bytesTotal</code>
+		 * in order to improve the accuracy of the <code>progress</code> property. Once the
 		 * <code>bytesTotal</code> has been determined or the <code>auditSize()</code> attempt fails due
-		 * to an error (typically IO_ERROR or SECURITY_ERROR), the <code>auditedSize</code> property will be 
-		 * set to <code>true</code>. Auditing the size opens a URLStream that will be closed 
+		 * to an error (typically IO_ERROR or SECURITY_ERROR), the <code>auditedSize</code> property will be
+		 * set to <code>true</code>. Auditing the size opens a URLStream that will be closed
 		 * as soon as a response is received.
 		 **/
 		public function auditSize():void {
 			//override in subclasses
 		}
-		
+
 		/** Returns information about the loader, like its type, its <code>name</code>, and its <code>url</code> (if it has one). **/
 		override public function toString():String {
 			return _type + " '" + this.name + "'" + ((this is LoaderItem) ? " (" + (this as LoaderItem).url + ")" : "");
 		}
-		
+
 //---- STATIC METHODS ------------------------------------------------------------------------------------
-		
+
 		/** @private **/
 		protected static function _activateClass(type:String, loaderClass:Class, extensions:String):Boolean {
 			if (type != "") {
@@ -369,10 +369,10 @@ package com.greensock.loading.core {
 			}
 			return true;
 		}
-		
-		
+
+
 //---- EVENT HANDLERS ------------------------------------------------------------------------------------
-		
+
 		/** @private **/
 		protected function _progressHandler(event:Event):void {
 			if (event is ProgressEvent) {
@@ -383,11 +383,11 @@ package com.greensock.loading.core {
 					dispatchEvent(new Event("auditedSize"));
 				}
 			}
-			if (_dispatchProgress && _status == LoaderStatus.LOADING && _cachedBytesLoaded != _cachedBytesTotal) { 
+			if (_dispatchProgress && _status == LoaderStatus.LOADING && _cachedBytesLoaded != _cachedBytesTotal) {
 				dispatchEvent(new LoaderEvent(LoaderEvent.PROGRESS, this));
 			}
 		}
-		
+
 		/** @private **/
 		protected function _completeHandler(event:Event=null):void {
 			_cachedBytesLoaded = _cachedBytesTotal;
@@ -401,12 +401,12 @@ package com.greensock.loading.core {
 				dispose();
 			}
 		}
-		
+
 		/** @private **/
 		protected function _errorHandler(event:Event):void {
 			var target:Object = event.target; //trigger the LoaderEvent's target getter once first in order to ensure that it reports properly - see the notes in LoaderEvent.target for more details.
 			target = (event is LoaderEvent && this.hasOwnProperty("getChildren")) ? event.target : this;
-			var text:String = ""; 
+			var text:String = "";
 			if (event.hasOwnProperty("error") && Object(event).error is Error) {
 				text = Object(event).error.message;
 			} else if (event.hasOwnProperty("text")) {
@@ -422,7 +422,7 @@ package com.greensock.loading.core {
 				}
 			}
 		}
-		
+
 		/** @private **/
 		protected function _failHandler(event:Event, dispatchError:Boolean=true):void {
 			_dump(0, LoaderStatus.FAILED, true);
@@ -434,7 +434,7 @@ package com.greensock.loading.core {
 			dispatchEvent(new LoaderEvent(LoaderEvent.FAIL, ((event is LoaderEvent && this.hasOwnProperty("getChildren")) ? event.target : this), this.toString() + " > " + (event as Object).text, event));
 			dispatchEvent(new LoaderEvent(LoaderEvent.CANCEL, this));
 		}
-		
+
 		/** @private **/
 		protected function _passThroughEvent(event:Event):void {
 			var type:String = event.type;
@@ -457,10 +457,10 @@ package com.greensock.loading.core {
 				dispatchEvent(new LoaderEvent(type, target, (event.hasOwnProperty("text") ? Object(event).text : ""), (event is LoaderEvent && LoaderEvent(event).data != null) ? LoaderEvent(event).data : event));
 			}
 		}
-		
+
 
 //---- GETTERS / SETTERS -------------------------------------------------------------------------
-		
+
 		/** If a loader is paused, its progress will halt and any LoaderMax instances to which it belongs will either skip over it or stop when its position is reached in the queue (depending on whether or not the LoaderMax's <code>skipPaused</code> property is <code>true</code>). **/
 		public function get paused():Boolean {
 			return Boolean(_status == LoaderStatus.PAUSED);
@@ -472,7 +472,7 @@ package com.greensock.loading.core {
 					_dump(0, LoaderStatus.PAUSED);
 				}
 				_status = LoaderStatus.PAUSED;
-				
+
 			} else if (!value && _status == LoaderStatus.PAUSED) {
 				if (_prePauseStatus == LoaderStatus.LOADING) {
 					load(false); //will change the _status for us inside load()
@@ -481,12 +481,12 @@ package com.greensock.loading.core {
 				}
 			}
 		}
-		
+
 		/** Integer code indicating the loader's status; options are <code>LoaderStatus.READY, LoaderStatus.LOADING, LoaderStatus.COMPLETED, LoaderStatus.PAUSED,</code> and <code>LoaderStatus.DISPOSED</code>. **/
 		public function get status():int {
 			return _status;
 		}
-		
+
 		/** Bytes loaded **/
 		public function get bytesLoaded():uint {
 			if (_cacheIsDirty) {
@@ -494,7 +494,7 @@ package com.greensock.loading.core {
 			}
 			return _cachedBytesLoaded;
 		}
-		
+
 		/** Total bytes that are to be loaded by the loader. Initially, this value is set to the <code>estimatedBytes</code> if one was defined in the <code>vars</code> object via the constructor, or it defaults to <code>LoaderMax.defaultEstimatedBytes</code>. When the loader loads enough of the content to accurately determine the bytesTotal, it will do so automatically. **/
 		public function get bytesTotal():uint {
 			if (_cacheIsDirty) {
@@ -502,18 +502,18 @@ package com.greensock.loading.core {
 			}
 			return _cachedBytesTotal;
 		}
-		
+
 		/** A value between 0 and 1 indicating the overall progress of the loader. When nothing has loaded, it will be 0; when it is halfway loaded, <code>progress</code> will be 0.5, and when it is fully loaded it will be 1. **/
 		public function get progress():Number {
 			return (this.bytesTotal != 0) ? _cachedBytesLoaded / _cachedBytesTotal : (_status == LoaderStatus.COMPLETED) ? 1 : 0;
 		}
-		
+
 		/** @private Every loader is associated with a root-level LoaderMax which will be the _globalQueue unless the loader had a <code>requireWithRoot</code> value passed into the constructor via the <code>vars</code> parameter. This enables us to chain things properly in subloaded swfs if, for example, a subloaded swf has LoaderMax instances of its own and we want the SWFLoader to accurately report its loading status based not only on the subloaded swf, but also the subloaded swf's LoaderMax instances. **/
 		public function get rootLoader():LoaderMax {
 			return _rootLoader;
 		}
-		
-		/** 
+
+		/**
 		 * The content that was loaded by the loader which varies by the type of loader:
 		 * <ul>
 		 * 		<li><strong> ImageLoader </strong> - A <code>com.greensock.loading.display.ContentDisplay</code> (a Sprite) which contains the ImageLoader's <code>rawContent</code> (a <code>flash.display.Bitmap</code> unless script access was denied in which case <code>rawContent</code> will be a <code>flash.display.Loader</code> to avoid security errors). For Flex users, you can set <code>LoaderMax.defaultContentDisplay</code> to <code>FlexContentDisplay</code> in which case ImageLoaders, SWFLoaders, and VideoLoaders will return a <code>com.greensock.loading.display.FlexContentDisplay</code> instance instead.</li>
@@ -529,13 +529,17 @@ package com.greensock.loading.core {
 		 * 		<li><strong> CSSLoader </strong> - <code>flash.text.StyleSheet</code></li>
 		 * 		<li><strong> MP3Loader </strong> - <code>flash.media.Sound</code></li>
 		 * 		<li><strong> LoaderMax </strong> - an array containing the content objects from each of its child loaders.</li>
-		 * </ul> 
+		 * </ul>
 		 **/
 		public function get content():* {
 			return _content;
 		}
-		
-		/** 
+
+		public function set content(c:*):void {
+			_content = c;
+		}
+
+		/**
 		 * Indicates whether or not the loader's <code>bytesTotal</code> value has been set by any of the following:
 		 * <ul>
 		 * 		<li>Defining an <code>estimatedBytes</code> in the <code>vars</code> object passed to the constructor</li>
@@ -546,14 +550,14 @@ package com.greensock.loading.core {
 		public function get auditedSize():Boolean {
 			return _auditedSize;
 		}
-		
-		/** 
-		 * The number of seconds that elapsed between when the loader began and when it either completed, failed, 
+
+		/**
+		 * The number of seconds that elapsed between when the loader began and when it either completed, failed,
 		 * or was canceled. You may check a loader's <code>loadTime</code> anytime, not just after it completes. For
 		 * example, you could access this value in an onProgress handler and you'd see it steadily increase as the loader
-		 * loads and then when it completes, <code>loadTime</code> will stop increasing. LoaderMax instances ignore 
-		 * any pauses when calculating this value, so if a LoaderMax begins loading and after 1 second it gets paused, 
-		 * and then 10 seconds later it resumes and takes an additional 14 seconds to complete, its <code>loadTime</code> 
+		 * loads and then when it completes, <code>loadTime</code> will stop increasing. LoaderMax instances ignore
+		 * any pauses when calculating this value, so if a LoaderMax begins loading and after 1 second it gets paused,
+		 * and then 10 seconds later it resumes and takes an additional 14 seconds to complete, its <code>loadTime</code>
 		 * would be 15, <strong>not</strong> 25.
 		 **/
 		public function get loadTime():Number {
@@ -565,6 +569,6 @@ package com.greensock.loading.core {
 				return _time / 1000;
 			}
 		}
-		
+
 	}
 }
